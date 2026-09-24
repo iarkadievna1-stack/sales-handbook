@@ -43,7 +43,7 @@
 <script>
 'use strict';
 const D=JSON.parse(document.getElementById('dashboard-data').textContent);
-const state={team:'all',project:'B2B',query:'',status:'all'};
+const state={team:'all',project:'all',query:'',status:'all'};
 const PROJECTS=['Premium','B2B','Программа лояльности','Premium Pro','Детские тарифы'];
 const $=id=>document.getElementById(id);
 const n=(v,d=0)=>Number(v).toLocaleString('ru-RU',{maximumFractionDigits:d});
@@ -66,17 +66,42 @@ function openDetail(name){const r=D.managers.find(x=>x['Имя']===name);if(!r)r
 function closeDetail(){$('detail-overlay').classList.remove('open');document.body.style.overflow='';previousFocus?.focus();}
 function render(){
  const operations=state.project==='operations';
+ const all=state.project==='all';
  [$('overview'),document.querySelector('.two-col'),$('people'),$('dynamics')].forEach(el=>{el.style.display=operations?'none':'';});
- document.querySelectorAll('.navigation a').forEach(a=>{a.style.display=operations&&a.getAttribute('href')!=='#operations'?'none':'';});
+ $('operations').style.display=operations?'':'none';
+ document.querySelector('.two-col').style.display=operations||all?'none':'';
+ $('dynamics').style.display=state.project==='B2B'?'':'none';
+ $('teams').style.display=all?'none':'';
+ $('overview').querySelector('.section-heading').style.display=all?'none':'';
+ const main=$('people').parentElement;
+ main.insertBefore($('people'),all?$('overview').nextSibling:$('dynamics'));
  document.querySelector('.freshness').innerHTML='<span class="dot"></span>'+(operations?'Звонки · сентябрь · снимок 24 сентября · не live':'Premium / PRO и B2B по 23 сентября · не live');
  if(operations){
   $('ops-team').value=state.team;
   renderOperations();
   return;
  }
+ if(all){renderAllSummary();renderMatrix();return;}
  renderSummary();renderTeams();renderGaps();renderRanking();renderMatrix();renderChart();
 }
+$('project').insertBefore(new Option('Все проекты','all',true,true),$('project').firstChild);
+function renderAllSummary(){
+ const teams=selectedTeams(),rows=selectedRows();
+ const sum=(kind)=>teams.reduce((total,t)=>total+PROJECTS.reduce((s,p)=>s+value(t,p,kind),0),0);
+ const plan=sum('план'),fact=sum('факт');
+ const cards=[['Общее выполнение',plan?n(fact/plan*100,1)+'<small>%</small>':'—','Взвешенный итог по планам выбранных команд']];
+ teams.forEach(t=>cards.push([t['Команда']+' · общий KPI',n(t['Итого, % выполнения']*100,1)+'<small>%</small>','Все проекты · выполнение командного плана']));
+ cards.push(['Менеджеры с KPI ≥ 100%',`${rows.filter(r=>r['Итого, % выполнения']>=1).length} <small>/ ${rows.length}</small>`,'Общий личный KPI · все направления']);
+ $('summary').style.gridTemplateColumns='repeat(auto-fit,minmax(210px,1fr))';
+ $('summary').innerHTML=cards.map(([label,num,foot],i)=>`<article class="stat ${i===0?'primary':''}"><div class="stat-label">${esc(label)}</div><div class="stat-number">${num}</div><div class="stat-foot">${esc(foot)}</div></article>`).join('');
+}
 $('project').add(new Option('Операционные метрики','operations'));
+document.querySelector('.navigation').addEventListener('click',e=>{
+ const link=e.target.closest('a');if(!link)return;
+ const target=link.getAttribute('href');
+ state.project=target==='#operations'?'operations':target==='#dynamics'?'B2B':'all';
+ $('project').value=state.project;render();
+});
 $('team-filter').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;state.team=b.dataset.team;document.querySelectorAll('[data-team]').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));render();});
 $('project').addEventListener('change',e=>{state.project=e.target.value;render();});
 $('search').addEventListener('input',e=>{state.query=e.target.value;renderMatrix();});
