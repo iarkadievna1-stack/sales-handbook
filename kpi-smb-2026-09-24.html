@@ -90,7 +90,7 @@ function render(){
  const rankingPanel=$('ranking').closest('section');
  rankingPanel.style.display=operations?'none':'';
  rankingPanel.style.marginTop=all?'24px':'';
- if(all){main.insertBefore(rankingPanel,$('people').nextSibling);renderAllSummary();renderMatrix();renderRanking();return;}
+ if(all){main.insertBefore(rankingPanel,$('people'));renderAllSummary();renderMatrix();renderRanking();return;}
  document.querySelector('.two-col').appendChild(rankingPanel);
  renderSummary();renderTeams();renderGaps();renderRanking();renderMatrix();renderChart();
 }
