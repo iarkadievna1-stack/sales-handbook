@@ -90,8 +90,8 @@ function render(){
  [$('overview'),document.querySelector('.two-col'),$('people')].forEach(el=>{el.style.display=operations?'none':'';});
  $('operations').style.display=operations?'':'none';
  document.querySelector('.two-col').style.display=operations||all?'none':'';
- $('teams').style.display=all?'none':'';
- $('overview').querySelector('.section-heading').style.display=all?'none':'';
+ $('teams').style.display=all?'':'none';
+ $('overview').querySelector('.section-heading').style.display=all?'':'none';
  const main=$('people').parentElement;
  main.insertBefore($('people'),all?$('overview').nextSibling:$('operations'));
  document.querySelector('.freshness').innerHTML='<span class="dot"></span>'+(operations?'Звонки · сентябрь · снимок 24 сентября · не live':'Premium / PRO и B2B по 23 сентября · не live');
@@ -104,9 +104,9 @@ function render(){
  const rankingPanel=$('ranking').closest('section');
  rankingPanel.style.display=operations?'none':'';
  rankingPanel.style.marginTop=all?'24px':'';
- if(all){main.insertBefore(rankingPanel,$('people'));renderAllSummary();renderMatrix();renderRanking();return;}
+ if(all){main.insertBefore(rankingPanel,$('people'));renderAllSummary();renderTeams();renderMatrix();renderRanking();return;}
  document.querySelector('.two-col').appendChild(rankingPanel);
- renderSummary();renderTeams();renderGaps();renderRanking();renderMatrix();
+ renderSummary();renderGaps();renderRanking();renderMatrix();
 }
 $('project').insertBefore(new Option('Все проекты','all',true,true),$('project').firstChild);
 function renderAllSummary(){
